@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package library;
+
+/*
+  LibraryService defines all core library operations
+*/
+service LibraryService {
+  // Books
+  rpc CreateBook (CreateBookRequest) returns (MessageResponse);
+  rpc ListBooks (Empty) returns (BooksResponse);
+  rpc UpdateBook (UpdateBookRequest) returns (MessageResponse);
+  rpc DeleteBook (IdRequest) returns (MessageResponse);
+
+  // Members
+  rpc CreateMember (CreateMemberRequest) returns (MessageResponse);
+  rpc ListMembers (Empty) returns (MembersResponse);
+  rpc UpdateMember (UpdateMemberRequest) returns (MessageResponse);
+  rpc DeleteMember (IdRequest) returns (MessageResponse);
+
+  // Borrowing
+  rpc BorrowBook (BorrowBookRequest) returns (MessageResponse);
+  rpc ReturnBook (ReturnBookRequest) returns (MessageResponse);
+  rpc ListBorrowedBooks (ListBorrowedBooksRequest) returns (BorrowedBooksResponse);
+}
+
+
+/* ----------- REQUEST MESSAGES ----------- */
+
+message CreateBookRequest {
+  string title = 1;
+  string author = 2;
+  string isbn = 3;
+}
+
+message CreateMemberRequest {
+  string name = 1;
+  string email = 2;
+  string phone = 3;
+}
+
+message BorrowBookRequest {
+  int32 book_id = 1;
+  int32 member_id = 2;
+}
+
+message ReturnBookRequest {
+  int32 book_id = 1;
+}
+
+message ListBorrowedBooksRequest {
+  int32 member_id = 1;
+}
+
+/* ----------- RESPONSE MESSAGES ----------- */
+
+message Book {
+  int32 id = 1;
+  string title = 2;
+  string author = 3;
+}
+
+message BorrowedBooksResponse {
+  repeated Book books = 1;
+}
+
+message MessageResponse {
+  string message = 1;
+}
+
+
+message Empty {}
+
+message IdRequest {
+  int32 id = 1;
+}
+
+message BooksResponse {
+  repeated Book books = 1;
+}
+
+message MembersResponse {
+  repeated Member members = 1;
+}
+
+message Member {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+  string phone = 4;
+}
+
+message UpdateBookRequest {
+  int32 id = 1;
+  string title = 2;
+  string author = 3;
+}
+
+message UpdateMemberRequest {
+  int32 id = 1;
+  string name = 2;
+  string email = 3;
+  string phone = 4;
+}

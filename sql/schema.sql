@@ -1,0 +1,24 @@
+CREATE TABLE books (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  author TEXT NOT NULL,
+  isbn VARCHAR(20) UNIQUE,
+  is_available BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE members (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE,
+  phone VARCHAR(15),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE borrowings (
+  id SERIAL PRIMARY KEY,
+  book_id INT REFERENCES books(id),
+  member_id INT REFERENCES members(id),
+  borrowed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  returned_at TIMESTAMP
+);

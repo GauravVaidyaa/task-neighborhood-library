@@ -1,0 +1,17 @@
+# Node
+node_modules
+client/library-ui/node_modules
+client/library-ui/node_modules/.vite
+
+# Python
+server/venv
+__pycache__
+*.pyc
+
+# Git
+.git
+.gitignore
+
+# OS
+.DS_Store
+Thumbs.db
