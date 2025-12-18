@@ -1,22 +1,26 @@
 import { TextField, Button, Stack } from "@mui/material";
 import { useState } from "react";
-import API from "../../services/api";
+import { isEmptyOrWhitespace, trimValue } from "../../utils/validation";
+import { addMember } from "../../services/libraryApi";
 
 export default function MemberForm({ onNotify }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const submit = async () => {
-    if (!name || !email) {
+    if (isEmptyOrWhitespace(name) || isEmptyOrWhitespace(email)) {
       return onNotify("Name and Email are required", "error");
     }
 
     try {
-      await API.post("/members", {
-        name,
-        email,
-        phone,
+      setLoading(true);
+
+      await addMember({
+        name: trimValue(name),
+        email: trimValue(email),
+        phone: trimValue(phone),
       });
 
       onNotify("Member created successfully", "success");
@@ -24,10 +28,9 @@ export default function MemberForm({ onNotify }) {
       setEmail("");
       setPhone("");
     } catch (err) {
-      onNotify(
-        err.response?.data?.error || "Failed to create member",
-        "error"
-      );
+      onNotify(err.response?.data?.error || "Failed to create member", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,8 +51,8 @@ export default function MemberForm({ onNotify }) {
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
       />
-      <Button variant="contained" onClick={submit}>
-        Create Member
+      <Button variant="contained" onClick={submit} disabled={loading}>
+        {loading ? "Saving..." : "Create Member"}
       </Button>
     </Stack>
   );

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import API from "../../services/api";
 import {
   Box,
   Select,
@@ -12,37 +11,55 @@ import {
   Button,
   Typography,
 } from "@mui/material";
+import {
+  getMembers,
+  getBorrowedBooks,
+  returnBook,
+} from "../../services/libraryApi";
 
 export default function BorrowerList({ onNotify }) {
   const [members, setMembers] = useState([]);
   const [memberId, setMemberId] = useState("");
   const [borrowedBooks, setBorrowedBooks] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // Load members
   useEffect(() => {
-    API.get("/members")
-      .then((res) => setMembers(res.data))
-      .catch(() => onNotify("Failed to load members", "error"));
+    loadMembers();
   }, []);
+
+  const loadMembers = async () => {
+    try {
+      const data = await getMembers();
+      setMembers(data);
+    } catch (err) {
+      onNotify(err.message || "Failed to load members", "error");
+    }
+  };
 
   // Load borrowed books
   const loadBorrowedBooks = async (id) => {
+    if (!id) return;
+
     try {
-      const res = await API.get(`/borrowed/${id}`);
-      setBorrowedBooks(res.data.books || []);
-    } catch {
-      onNotify("Failed to load borrowed books", "error");
+      setLoading(true);
+      const data = await getBorrowedBooks(id);
+      setBorrowedBooks(data.books || []);
+    } catch (err) {
+      onNotify(err.message || "Failed to load borrowed books", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
   // Return book
-  const returnBook = async (bookId) => {
+  const handleReturnBook = async (bookId) => {
     try {
-      await API.post("/return", { book_id: bookId });
+      await returnBook({ book_id: bookId });
       onNotify("Book returned successfully", "success");
       loadBorrowedBooks(memberId);
-    } catch {
-      onNotify("Failed to return book", "error");
+    } catch (err) {
+      onNotify(err.message || "Failed to return book", "error");
     }
   };
 
@@ -85,7 +102,8 @@ export default function BorrowerList({ onNotify }) {
                 <TableCell align="right">
                   <Button
                     variant="outlined"
-                    onClick={() => returnBook(b.id)}
+                    onClick={() => handleReturnBook(b.id)}
+                    disabled={loading}
                   >
                     Return
                   </Button>
