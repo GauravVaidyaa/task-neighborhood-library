@@ -44,7 +44,7 @@ export default function BorrowerList({ onNotify }) {
     try {
       setLoading(true);
       const data = await getBorrowedBooks(id);
-      setBorrowedBooks(data.books || []);
+      setBorrowedBooks(data || []);
     } catch (err) {
       onNotify(err.message || "Failed to load borrowed books", "error");
     } finally {
