@@ -10,8 +10,9 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import { isEmptyOrWhitespace, trimValue } from "../../utils/validation";
+import { isEmptyOrWhitespace, trimValue, isValidName } from "../../utils/validation";
 import { updateBook } from "../../services/libraryApi";
+import { MESSAGES } from "../../constants/messages";
 
 export default function BookEditDialog({
   open,
@@ -33,7 +34,15 @@ export default function BookEditDialog({
 
   const update = async () => {
     if (isEmptyOrWhitespace(title) || isEmptyOrWhitespace(author)) {
-      return onNotify("Title & Author required", "error");
+      return onNotify(MESSAGES.BOOK.TITLE_AND_AUTHOR_REQUIRED, MESSAGES.COMMON.ERROR);
+    }
+
+    if (!isValidName(title)) {
+      return onNotify(MESSAGES.BOOK.TITLE_NAME_INVALID, MESSAGES.COMMON.ERROR);
+    }
+
+    if (!isValidName(author)) {
+      return onNotify(MESSAGES.BOOK.AUTHOR_NAME_INVALID, MESSAGES.COMMON.ERROR);
     }
 
     try {
@@ -44,11 +53,11 @@ export default function BookEditDialog({
         author: trimValue(author),
       });
 
-      onNotify("Book updated successfully", "success");
+      onNotify(MESSAGES.BOOK.UPDATED_SUCCESS, MESSAGES.COMMON.SUCCESS);
       onUpdated();
       onClose();
     } catch (err) {
-      onNotify(err.message, "Failed to update book", "error");
+      onNotify(err.message, MESSAGES.BOOK.FAILED_TO_UPDATE, MESSAGES.COMMON.ERROR);
     } finally {
       setLoading(false);
     }

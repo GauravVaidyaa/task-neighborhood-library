@@ -25,6 +25,7 @@ import {
   getBooks,
   deleteBook as deleteBookApi,
 } from "../../services/libraryApi";
+import { MESSAGES } from "../../constants/messages";
 
 export default function BookList({ onNotify }) {
   const [books, setBooks] = useState([]);
@@ -39,7 +40,7 @@ export default function BookList({ onNotify }) {
       const data = await getBooks();
       setBooks(data);
     } catch (err) {
-      onNotify(err.message || "Failed to load books", "error");
+      onNotify(err.message || MESSAGES.BOOK.FAILED_TO_LOAD_BOOKS, MESSAGES.COMMON.ERROR);
     } finally {
       setLoading(false);
     }
@@ -54,10 +55,10 @@ export default function BookList({ onNotify }) {
 
     try {
       await deleteBookApi(deleteBook.id);
-      onNotify("Book deleted successfully", "success");
+      onNotify(MESSAGES.BOOK.DELETE_SUCCESS, MESSAGES.COMMON.SUCCESS);
       await loadBooks();
     } catch (err) {
-      onNotify(err.message || "Failed to delete book", "error");
+      onNotify(err.message || MESSAGES.BOOK.FAILED_TO_DELETE_BOOK, MESSAGES.COMMON.ERROR);
     } finally {
       setDeleteBook(null);
     }

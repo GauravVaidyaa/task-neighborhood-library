@@ -26,6 +26,7 @@ import {
   getMembers,
   deleteMember as deleteMemberApi,
 } from "../../services/libraryApi";
+import { MESSAGES } from "../../constants/messages";
 
 export default function MemberList({ onNotify }) {
   const [members, setMembers] = useState([]);
@@ -40,7 +41,7 @@ export default function MemberList({ onNotify }) {
       const data = await getMembers();
       setMembers(data);
     } catch (err) {
-      onNotify(err.message || "Failed to load members", "error");
+      onNotify(err.message || MESSAGES.MEMBER.FAILED_TO_LOAD_MEMBERS, MESSAGES.COMMON.ERROR);
     } finally {
       setLoading(false);
     }
@@ -49,10 +50,10 @@ export default function MemberList({ onNotify }) {
   const remove = async (id) => {
     try {
       await deleteMemberApi(id);
-      onNotify("Member deleted", "success");
+      onNotify(MESSAGES.MEMBER.DELETE_SUCCESS, MESSAGES.COMMON.SUCCESS);
       loadMembers();
     } catch (err) {
-      onNotify(err.message, "Cannot delete member", "error");
+      onNotify(err.message, MESSAGES.MEMBER.CANNOT_DELETE_MEMBER, MESSAGES.COMMON.ERROR);
     }
   };
 
@@ -156,10 +157,10 @@ export default function MemberList({ onNotify }) {
         onConfirm={async () => {
           try {
             await API.delete(`/members/${deleteMember.id}`);
-            onNotify("Member deleted successfully", "success");
+            onNotify("Member deleted successfully", MESSAGES.COMMON.SUCCESS);
             loadMembers();
           } catch {
-            onNotify("Cannot delete member (active borrowings?)", "error");
+            onNotify("Cannot delete member (active borrowings?)", MESSAGES.COMMON.ERROR);
           }
           setDeleteMember(null);
         }}

@@ -1,7 +1,8 @@
 import { TextField, Button, Stack } from "@mui/material";
 import { useState } from "react";
-import { isEmptyOrWhitespace, trimValue } from "../../utils/validation";
+import { isEmptyOrWhitespace, trimValue, isValidName } from "../../utils/validation";
 import { addBook } from "../../services/libraryApi";
+import { MESSAGES } from "../../constants/messages";
 
 export default function BookForm({ onSuccess }) {
   const [title, setTitle] = useState("");
@@ -10,7 +11,17 @@ export default function BookForm({ onSuccess }) {
 
   const submit = async () => {
     if (isEmptyOrWhitespace(title) || isEmptyOrWhitespace(author)) {
-      onSuccess("Title and Author are required", "error");
+      onSuccess(MESSAGES.BOOK.TITLE_AND_AUTHOR_REQUIRED, MESSAGES.COMMON.ERROR);
+      return;
+    }
+
+    if (!isValidName(title)) {
+      onSuccess(MESSAGES.BOOK.TITLE_NAME_INVALID, MESSAGES.COMMON.ERROR);
+      return;
+    }
+
+    if (!isValidName(author)) {
+      onSuccess(MESSAGES.BOOK.AUTHOR_NAME_INVALID, MESSAGES.COMMON.ERROR);
       return;
     }
 
@@ -23,12 +34,12 @@ export default function BookForm({ onSuccess }) {
         isbn: Date.now().toString(),
       });
 
-      onSuccess("Book added successfully", "success");
+      onSuccess(MESSAGES.BOOK.CREATED_SUCCESS, MESSAGES.COMMON.SUCCESS);
 
       setTitle("");
       setAuthor("");
     } catch (err) {
-      onSuccess(err.message, "Failed to add book", "error");
+      onSuccess(err.message, MESSAGES.BOOK.FAILED_TO_ADD, MESSAGES.COMMON.ERROR);
     } finally {
       setLoading(false);
     }

@@ -14,6 +14,7 @@ import {
   borrowBook,
   returnBook,
 } from "../../services/libraryApi";
+import { MESSAGES } from "../../constants/messages";
 
 export default function BorrowReturn({ onSuccess }) {
   const [members, setMembers] = useState([]);
@@ -33,7 +34,7 @@ export default function BorrowReturn({ onSuccess }) {
         setMembers(membersRes);
         setBooks(booksRes);
       } catch (err) {
-        onSuccess(err.message || "Failed to load data", "error");
+        onSuccess(err.message || MESSAGES.COMMON.FAILED_TO_LOAD_DATA, MESSAGES.COMMON.ERROR);
       }
     };
 
@@ -42,7 +43,7 @@ export default function BorrowReturn({ onSuccess }) {
 
   const borrow = async () => {
     if (isEmptyOrWhitespace(memberId) || isEmptyOrWhitespace(bookId)) {
-      onSuccess("Member and Book selection is required", "error");
+      onSuccess(MESSAGES.BORROW.MEMBER_AND_BOOK_SELECTION_REQUIRED, MESSAGES.COMMON.ERROR);
       return;
     }
 
@@ -54,11 +55,11 @@ export default function BorrowReturn({ onSuccess }) {
         book_id: Number(bookId),
       });
 
-      onSuccess("Book borrowed successfully", "success");
+      onSuccess(MESSAGES.BORROW.BORROW_SUCCESS, MESSAGES.COMMON.SUCCESS);
       setMemberId("");
       setBookId("");
     } catch (err) {
-      onSuccess(err.message || "Borrow failed", "error");
+      onSuccess(err.message || MESSAGES.BORROW.FAILED_BORROW, MESSAGES.COMMON.ERROR);
     } finally {
       setLoading(false);
     }
@@ -66,7 +67,7 @@ export default function BorrowReturn({ onSuccess }) {
 
   const handleReturnBook = async () => {
     if (isEmptyOrWhitespace(bookId)) {
-      onSuccess("Book selection is required", "error");
+      onSuccess(MESSAGES.BORROW.BOOK_SELECTION_REQUIRED, MESSAGES.COMMON.ERROR);
       return;
     }
 
@@ -77,10 +78,10 @@ export default function BorrowReturn({ onSuccess }) {
         book_id: Number(bookId),
       });
 
-      onSuccess("Book returned successfully", "success");
+      onSuccess(MESSAGES.BORROW.RETURN_SUCCESS, MESSAGES.COMMON.SUCCESS);
       setBookId("");
     } catch (err) {
-      onSuccess(err.message || "Return failed", "error");
+      onSuccess(err.message || MESSAGES.BORROW.FAILED_RETURN, MESSAGES.COMMON.ERROR);
     } finally {
       setLoading(false);
     }

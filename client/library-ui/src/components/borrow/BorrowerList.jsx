@@ -16,6 +16,7 @@ import {
   getBorrowedBooks,
   returnBook,
 } from "../../services/libraryApi";
+import { MESSAGES } from "../../constants/messages";
 
 export default function BorrowerList({ onNotify }) {
   const [members, setMembers] = useState([]);
@@ -33,7 +34,7 @@ export default function BorrowerList({ onNotify }) {
       const data = await getMembers();
       setMembers(data);
     } catch (err) {
-      onNotify(err.message || "Failed to load members", "error");
+      onNotify(err.message || MESSAGES.MEMBER.FAILED_TO_LOAD_MEMBERS, MESSAGES.COMMON.ERROR);
     }
   };
 
@@ -46,7 +47,7 @@ export default function BorrowerList({ onNotify }) {
       const data = await getBorrowedBooks(id);
       setBorrowedBooks(data || []);
     } catch (err) {
-      onNotify(err.message || "Failed to load borrowed books", "error");
+      onNotify(err.message || MESSAGES.BORROW.FAILED_TO_LOAD_BORROWED_BOOKS, MESSAGES.COMMON.ERROR);
     } finally {
       setLoading(false);
     }
@@ -56,10 +57,10 @@ export default function BorrowerList({ onNotify }) {
   const handleReturnBook = async (bookId) => {
     try {
       await returnBook({ book_id: bookId });
-      onNotify("Book returned successfully", "success");
+      onNotify(MESSAGES.BORROW.RETURN_SUCCESS, MESSAGES.COMMON.SUCCESS);
       loadBorrowedBooks(memberId);
     } catch (err) {
-      onNotify(err.message || "Failed to return book", "error");
+      onNotify(err.message || MESSAGES.BORROW.FAILED_TO_RETURN_BOOK, MESSAGES.COMMON.ERROR);
     }
   };
 

@@ -10,8 +10,9 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import { isEmptyOrWhitespace, trimValue, isValidEmail } from "../../utils/validation";
+import { isEmptyOrWhitespace, trimValue, isValidEmail, isValidName, isValidPhone } from "../../utils/validation";
 import { updateMember } from "../../services/libraryApi";
+import { MESSAGES } from "../../constants/messages";
 
 export default function MemberEditDialog({
   open,
@@ -35,11 +36,19 @@ export default function MemberEditDialog({
 
   const update = async () => {
     if (isEmptyOrWhitespace(name) || isEmptyOrWhitespace(email)) {
-      return onNotify("Name & Email required", "error");
+      return onNotify(MESSAGES.MEMBER.NAME_AND_EMAIL_REQUIRED, MESSAGES.COMMON.ERROR);
+    }
+
+    if (!isValidName(name)) {
+      return onNotify(MESSAGES.MEMBER.NAME_INVALID, MESSAGES.COMMON.ERROR);
     }
 
     if (!isValidEmail(email)) {
-      return onNotify("Please enter a valid email address", "error");
+      return onNotify(MESSAGES.MEMBER.EMAIL_INVALID, MESSAGES.COMMON.ERROR);
+    }
+
+    if (phone && !isValidPhone(phone)) {
+      return onNotify(MESSAGES.MEMBER.PHONE_INVALID, MESSAGES.COMMON.ERROR);
     }
 
     try {
@@ -52,11 +61,11 @@ export default function MemberEditDialog({
         phone: trimValue(phone),
       });
 
-      onNotify("Member updated successfully", "success");
+      onNotify(MESSAGES.MEMBER.UPDATED_SUCCESS, MESSAGES.COMMON.SUCCESS);
       onUpdated();
       onClose();
     } catch (err) {
-      onNotify(err.message || "Failed to update member", "error");
+      onNotify(err.message || MESSAGES.MEMBER.FAILED_TO_UPDATE_MEMBER, MESSAGES.COMMON.ERROR);
     } finally {
       setLoading(false);
     }

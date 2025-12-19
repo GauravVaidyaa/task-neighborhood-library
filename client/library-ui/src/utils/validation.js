@@ -21,3 +21,15 @@ export const isValidEmail = (email = "") => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(trimmed);
 };
+
+export const isValidName = (name = "") => {
+  const trimmed = trimValue(name);
+  const nameRegex = /^[A-Za-z\s]+$/;
+  return nameRegex.test(trimmed);
+};
+
+export const isValidPhone = (phone = "") => {
+  const trimmed = trimValue(phone);
+  const phoneRegex = /^[0-9]{10,15}$/;
+  return phoneRegex.test(trimmed);
+};
