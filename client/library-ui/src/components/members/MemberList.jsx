@@ -8,7 +8,12 @@ import {
   TableBody,
   IconButton,
   Paper,
-  Typography, Box, Button, Dialog, DialogTitle, DialogContent
+  Typography,
+  Box,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -17,31 +22,38 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import MemberForm from "./MemberForm";
 import ConfirmDialog from "../common/ConfirmDialog";
-
+import {
+  getMembers,
+  deleteMember as deleteMemberApi,
+} from "../../services/libraryApi";
+import { MESSAGES } from "../../constants/messages";
 
 export default function MemberList({ onNotify }) {
   const [members, setMembers] = useState([]);
   const [editMember, setEditMember] = useState(null);
   const [openAdd, setOpenAdd] = useState(false);
   const [deleteMember, setDeleteMember] = useState(null);
-
+  const [loading, setLoading] = useState(false);
 
   const loadMembers = async () => {
     try {
-      const res = await API.get("/members");
-      setMembers(res.data);
-    } catch {
-      onNotify("Failed to load members", "error");
+      setLoading(true);
+      const data = await getMembers();
+      setMembers(data);
+    } catch (err) {
+      onNotify(err.message || MESSAGES.MEMBER.FAILED_TO_LOAD_MEMBERS, MESSAGES.COMMON.ERROR);
+    } finally {
+      setLoading(false);
     }
   };
 
   const remove = async (id) => {
     try {
-      await API.delete(`/members/${id}`);
-      onNotify("Member deleted", "success");
+      await deleteMemberApi(id);
+      onNotify(MESSAGES.MEMBER.DELETE_SUCCESS, MESSAGES.COMMON.SUCCESS);
       loadMembers();
-    } catch {
-      onNotify("Cannot delete member", "error");
+    } catch (err) {
+      onNotify(err.message, MESSAGES.MEMBER.CANNOT_DELETE_MEMBER, MESSAGES.COMMON.ERROR);
     }
   };
 
@@ -97,7 +109,7 @@ export default function MemberList({ onNotify }) {
             </TableRow>
           ))}
 
-          {members.length === 0 && (
+          {!loading && members.length === 0 && (
             <TableRow>
               <TableCell colSpan={5} align="center">
                 No members found
@@ -115,40 +127,44 @@ export default function MemberList({ onNotify }) {
         onUpdated={loadMembers}
       />
       <Dialog open={openAdd} onClose={() => setOpenAdd(false)} fullWidth>
-      <DialogTitle
-        sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
-      >
-        Add Member
-        <IconButton onClick={() => setOpenAdd(false)}>
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent>
-        <MemberForm
-          onNotify={(msg, type) => {
-            onNotify(msg, type);
-            setOpenAdd(false);
-            loadMembers();
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
-        />
-      </DialogContent>
-    </Dialog>
-    <ConfirmDialog
-      open={Boolean(deleteMember)}
-      title="Delete Member"
-      message={`Are you sure you want to delete "${deleteMember?.name}"?`}
-      onCancel={() => setDeleteMember(null)}
-      onConfirm={async () => {
-        try {
-          await API.delete(`/members/${deleteMember.id}`);
-          onNotify("Member deleted successfully", "success");
-          loadMembers();
-        } catch {
-          onNotify("Cannot delete member (active borrowings?)", "error");
-        }
-        setDeleteMember(null);
-      }}
-    />
+        >
+          Add Member
+          <IconButton onClick={() => setOpenAdd(false)}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <MemberForm
+            onNotify={(msg, type) => {
+              onNotify(msg, type);
+              setOpenAdd(false);
+              loadMembers();
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+      <ConfirmDialog
+        open={Boolean(deleteMember)}
+        title="Delete Member"
+        message={`Are you sure you want to delete "${deleteMember?.name}"?`}
+        onCancel={() => setDeleteMember(null)}
+        onConfirm={async () => {
+          try {
+            await API.delete(`/members/${deleteMember.id}`);
+            onNotify("Member deleted successfully", MESSAGES.COMMON.SUCCESS);
+            loadMembers();
+          } catch {
+            onNotify("Cannot delete member (active borrowings?)", MESSAGES.COMMON.ERROR);
+          }
+          setDeleteMember(null);
+        }}
+      />
     </Paper>
   );
 }

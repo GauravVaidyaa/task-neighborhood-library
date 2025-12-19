@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import API from "../../services/api";
 import {
   Box,
   Select,
@@ -12,37 +11,56 @@ import {
   Button,
   Typography,
 } from "@mui/material";
+import {
+  getMembers,
+  getBorrowedBooks,
+  returnBook,
+} from "../../services/libraryApi";
+import { MESSAGES } from "../../constants/messages";
 
 export default function BorrowerList({ onNotify }) {
   const [members, setMembers] = useState([]);
   const [memberId, setMemberId] = useState("");
   const [borrowedBooks, setBorrowedBooks] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // Load members
   useEffect(() => {
-    API.get("/members")
-      .then((res) => setMembers(res.data))
-      .catch(() => onNotify("Failed to load members", "error"));
+    loadMembers();
   }, []);
+
+  const loadMembers = async () => {
+    try {
+      const data = await getMembers();
+      setMembers(data);
+    } catch (err) {
+      onNotify(err.message || MESSAGES.MEMBER.FAILED_TO_LOAD_MEMBERS, MESSAGES.COMMON.ERROR);
+    }
+  };
 
   // Load borrowed books
   const loadBorrowedBooks = async (id) => {
+    if (!id) return;
+
     try {
-      const res = await API.get(`/borrowed/${id}`);
-      setBorrowedBooks(res.data.books || []);
-    } catch {
-      onNotify("Failed to load borrowed books", "error");
+      setLoading(true);
+      const data = await getBorrowedBooks(id);
+      setBorrowedBooks(data || []);
+    } catch (err) {
+      onNotify(err.message || MESSAGES.BORROW.FAILED_TO_LOAD_BORROWED_BOOKS, MESSAGES.COMMON.ERROR);
+    } finally {
+      setLoading(false);
     }
   };
 
   // Return book
-  const returnBook = async (bookId) => {
+  const handleReturnBook = async (bookId) => {
     try {
-      await API.post("/return", { book_id: bookId });
-      onNotify("Book returned successfully", "success");
+      await returnBook({ book_id: bookId });
+      onNotify(MESSAGES.BORROW.RETURN_SUCCESS, MESSAGES.COMMON.SUCCESS);
       loadBorrowedBooks(memberId);
-    } catch {
-      onNotify("Failed to return book", "error");
+    } catch (err) {
+      onNotify(err.message || MESSAGES.BORROW.FAILED_TO_RETURN_BOOK, MESSAGES.COMMON.ERROR);
     }
   };
 
@@ -85,7 +103,8 @@ export default function BorrowerList({ onNotify }) {
                 <TableCell align="right">
                   <Button
                     variant="outlined"
-                    onClick={() => returnBook(b.id)}
+                    onClick={() => handleReturnBook(b.id)}
+                    disabled={loading}
                   >
                     Return
                   </Button>

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import API from "../../services/api";
 import {
   Table,
   TableHead,
@@ -9,7 +8,11 @@ import {
   IconButton,
   Paper,
   Typography,
-  Box, Button, Dialog, DialogTitle, DialogContent
+  Box,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -18,32 +21,28 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import BookForm from "./BookForm";
 import ConfirmDialog from "../common/ConfirmDialog";
-
+import {
+  getBooks,
+  deleteBook as deleteBookApi,
+} from "../../services/libraryApi";
+import { MESSAGES } from "../../constants/messages";
 
 export default function BookList({ onNotify }) {
   const [books, setBooks] = useState([]);
   const [editBook, setEditBook] = useState(null);
   const [openAdd, setOpenAdd] = useState(false);
   const [deleteBook, setDeleteBook] = useState(null);
-
-
+  const [loading, setLoading] = useState(false);
 
   const loadBooks = async () => {
     try {
-      const res = await API.get("/books");
-      setBooks(res.data);
-    } catch {
-      onNotify("Failed to load books", "error");
-    }
-  };
-
-  const remove = async (id) => {
-    try {
-      await API.delete(`/books/${id}`);
-      onNotify("Book deleted", "success");
-      loadBooks();
-    } catch {
-      onNotify("Cannot delete book", "error");
+      setLoading(true);
+      const data = await getBooks();
+      setBooks(data);
+    } catch (err) {
+      onNotify(err.message || MESSAGES.BOOK.FAILED_TO_LOAD_BOOKS, MESSAGES.COMMON.ERROR);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,19 +52,17 @@ export default function BookList({ onNotify }) {
 
   const confirmDeleteBook = async () => {
     if (!deleteBook) return;
-  
+
     try {
-      await API.delete(`/books/${deleteBook.id}`);
-      onNotify("Book deleted successfully", "success");
-  
+      await deleteBookApi(deleteBook.id);
+      onNotify(MESSAGES.BOOK.DELETE_SUCCESS, MESSAGES.COMMON.SUCCESS);
       await loadBooks();
-    } catch {
-      onNotify("Failed to delete book", "error");
+    } catch (err) {
+      onNotify(err.message || MESSAGES.BOOK.FAILED_TO_DELETE_BOOK, MESSAGES.COMMON.ERROR);
     } finally {
       setDeleteBook(null);
     }
   };
-  
 
   return (
     <Paper sx={{ mt: 3 }}>
@@ -113,7 +110,7 @@ export default function BookList({ onNotify }) {
             </TableRow>
           ))}
 
-          {books.length === 0 && (
+          {!loading && books.length === 0 && (
             <TableRow>
               <TableCell colSpan={4} align="center">
                 No books found
@@ -130,16 +127,20 @@ export default function BookList({ onNotify }) {
         onNotify={onNotify}
         onUpdated={loadBooks}
       />
-      
+
       <Dialog open={openAdd} onClose={() => setOpenAdd(false)} fullWidth>
-      <DialogTitle
-        sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
-      >
-        Add Book
-        <IconButton onClick={() => setOpenAdd(false)}>
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          Add Book
+          <IconButton onClick={() => setOpenAdd(false)}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
         <DialogContent>
           <BookForm
             onSuccess={(msg, type) => {
