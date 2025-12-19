@@ -1,5 +1,6 @@
 export const handleApiError = (error) => {
   if (error.response) {
+    console.log(error.response)
     return {
       message: error.response.data?.message || "Server error",
       status: error.response.status,

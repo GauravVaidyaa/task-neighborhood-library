@@ -28,7 +28,7 @@ export default function MemberForm({ onNotify }) {
       setEmail("");
       setPhone("");
     } catch (err) {
-      onNotify(err.response?.data?.error || "Failed to create member", "error");
+      onNotify(err.message || "Failed to create member", "error");
     } finally {
       setLoading(false);
     }
