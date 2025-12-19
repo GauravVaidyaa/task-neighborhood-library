@@ -1,5 +1,5 @@
 # Neighborhood Library
-A small neighborhood library which have a new service to manage its members, books, and lending operations.
+A Neighborhood Library Management System that manages members, books, and lending operations using a modern backend architecture with gRPC, Node.js API Gateway, PostgreSQL, and a React UI.
 
 
 ---
@@ -12,12 +12,15 @@ A small neighborhood library which have a new service to manage its members, boo
 
 ### Steps to Run the application
 
+- Clone the repository
+  ```bash
+    git clone <repository-url>
+    cd neighborhood-library
 
-- pull the code in you local machine.
-- once pull, go into the project folder
-- create .env file and copy the content from .env.example 
-  file paste it into .env file.
-- once paste, then replace the value as per below:
+  ```
+- Create a .env file in the root directory
+- Copy the contents from .env.example into .env
+- Update values as below:
     ```bash
     POSTGRES_DB=neighborhood_library
     POSTGRES_USER=postgres
@@ -25,7 +28,12 @@ A small neighborhood library which have a new service to manage its members, boo
     DB_HOST=postgres
     DB_PORT=5432
     ```
-
+- Create .env file for frontend and for that Navigate to:
+  ```bash
+    client/library-ui
+  ```
+- Create a .env file
+- Copy contents from .env.example into .env
 - Then run below command
     ```bash
     docker-compose up -d --build
@@ -49,6 +57,8 @@ A small neighborhood library which have a new service to manage its members, boo
 | `PostgreSQL`| [`localhost:5432`](localhost:5432)|
                              
 
-
-
-
+### Notes
+---
+- No manual database setup is required; schema is initialized automatically.
+- All services are containerized and run together via Docker Compose.
+- The API Gateway translates HTTP requests to gRPC calls and handles error mapping and logging.
