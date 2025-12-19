@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import { isEmptyOrWhitespace, trimValue } from "../../utils/validation";
+import { isEmptyOrWhitespace, trimValue, isValidEmail } from "../../utils/validation";
 import { updateMember } from "../../services/libraryApi";
 
 export default function MemberEditDialog({
@@ -36,6 +36,10 @@ export default function MemberEditDialog({
   const update = async () => {
     if (isEmptyOrWhitespace(name) || isEmptyOrWhitespace(email)) {
       return onNotify("Name & Email required", "error");
+    }
+
+    if (!isValidEmail(email)) {
+      return onNotify("Please enter a valid email address", "error");
     }
 
     try {

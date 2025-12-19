@@ -1,6 +1,6 @@
 import { TextField, Button, Stack } from "@mui/material";
 import { useState } from "react";
-import { isEmptyOrWhitespace, trimValue } from "../../utils/validation";
+import { isEmptyOrWhitespace, trimValue, isValidEmail } from "../../utils/validation";
 import { addMember } from "../../services/libraryApi";
 
 export default function MemberForm({ onNotify }) {
@@ -12,6 +12,10 @@ export default function MemberForm({ onNotify }) {
   const submit = async () => {
     if (isEmptyOrWhitespace(name) || isEmptyOrWhitespace(email)) {
       return onNotify("Name and Email are required", "error");
+    }
+
+    if (!isValidEmail(email)) {
+      return onNotify("Please enter a valid email address", "error");
     }
 
     try {

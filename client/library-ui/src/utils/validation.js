@@ -14,3 +14,10 @@ export const isEmptyOrWhitespace = (value) => {
 
 export const trimValue = (value) =>
   typeof value === "string" ? value.trim() : value;
+
+
+export const isValidEmail = (email = "") => {
+  const trimmed = trimValue(email);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(trimmed);
+};
